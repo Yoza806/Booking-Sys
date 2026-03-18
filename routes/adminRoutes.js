@@ -332,4 +332,15 @@ router.get("/api/admin/system-date", ensureAdmin, async (req, res) => {
   }
 });
 
+router.get("/admin/users", ensureAdmin, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name, email, phone, address, role, created_at FROM users ORDER BY id ASC");
+    res.render("adminUsers", { users: result.rows });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to load users");
+    res.redirect("/admin");
+  }
+});
+
 export default router;

@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>All Registered Users</h1>
+        <p>View details of all users registered in the system.</p>
+        <a href="/admin" class="btn btn-secondary">← Back to Dashboard</a>
+    </div>
+
+    <div class="admin-card" style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">ID</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Name</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Email</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Phone</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Address</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Role</th>
+                    <th style="padding: 12px; font-weight: 600; color: #1d1d1f;">Joined Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(users.length > 0) { %>
+                    <% users.forEach(user => { %>
+                        <tr style="border-bottom: 1px solid #f5f5f7;">
+                            <td style="padding: 12px; color: #86868b;"><%= user.id %></td>
+                            <td style="padding: 12px; font-weight: 500;"><%= user.name %></td>
+                            <td style="padding: 12px;"><%= user.email %></td>
+                            <td style="padding: 12px;"><%= user.phone || '-' %></td>
+                            <td style="padding: 12px;"><%= user.address || '-' %></td>
+                            <td style="padding: 12px;">
+                                <span style="
+                                    padding: 4px 8px; 
+                                    border-radius: 6px; 
+                                    font-size: 12px; 
+                                    font-weight: 500;
+                                    background-color: <%= user.role === 'admin' ? '#e8f0fe' : '#f2f2f2' %>;
+                                    color: <%= user.role === 'admin' ? '#1967d2' : '#5f6368' %>;
+                                "><%= user.role.toUpperCase() %></span>
+                            </td>
+                            <td style="padding: 12px; color: #86868b;"><%= new Date(user.created_at).toLocaleDateString() %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #86868b;">No users found in the database.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
