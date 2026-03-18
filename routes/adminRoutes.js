@@ -334,7 +334,14 @@ router.get("/api/admin/system-date", ensureAdmin, async (req, res) => {
 
 router.get("/admin/users", ensureAdmin, async (req, res) => {
   try {
-    const result = await pool.query("SELECT id, name, email, phone, address, role, created_at FROM users ORDER BY id ASC");
+    const result = await pool.query(`
+      SELECT u.id, u.name, u.email, u.phone, u.address, u.role, u.created_at,
+      (COUNT(b.booking_id) * 10) as points
+      FROM users u
+      LEFT JOIN bookings b ON u.id = b.user_id
+      GROUP BY u.id
+      ORDER BY points DESC, u.id ASC
+    `);
     res.render("adminUsers", { users: result.rows });
   } catch (err) {
     console.error(err);
