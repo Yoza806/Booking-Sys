@@ -5,6 +5,7 @@ import passport from "passport";
 import { ensureAdmin, ensureAuthenticated } from "../middleware/authMiddleware.js";
 import crypto from "crypto";
 import sendEmail from "../config/email.js";
+import moment from "moment-timezone";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.get("/admin", ensureAdmin, async (req, res) => {
     );
     
     // Fetch multiple settings
-    const settingsResult = await pool.query(
+    let settingsResult = await pool.query(
       "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('maintenance_mode', 'calendar_days_to_show')"
     );
     
@@ -36,11 +37,24 @@ router.get("/admin", ensureAdmin, async (req, res) => {
         return acc;
     }, {});
 
+    // Fetch timezone setting
+    let timezoneResult = await pool.query(
+      "SELECT setting_value FROM system_settings WHERE setting_key = 'system.timezone'"
+    );
+
+    let systemTimezone = 'UTC'; // Default value
+    if (timezoneResult.rows.length > 0) {
+      systemTimezone = timezoneResult.rows[0].setting_value;
+    }
+
     const maintenanceMode = settings.maintenance_mode === 'true';
     const calendarDaysToShow = settings.calendar_days_to_show || 7; // Default to 7 if not set
 
-    res.render("admin", { courts: courtsResult.rows, maintenanceMode, calendarDaysToShow });
+    res.render("admin", { courts: courtsResult.rows, maintenanceMode, calendarDaysToShow, systemTimezone, moment });
   } catch (err) {
+
+
+
     console.error(err);
     req.flash("error", "Failed to load court data.");
     res.render("admin", { courts: [], maintenanceMode: false, calendarDaysToShow: 7 });

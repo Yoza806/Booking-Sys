@@ -2,6 +2,7 @@ import express from "express";
 import { ensureAuthenticated } from "../middleware/authMiddleware.js";
 import { ensureAdmin } from "../middleware/authMiddleware.js";
 import pool from "../config/db.js";
+import moment from "moment-timezone";
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
 
     // Fetch all bookings for the user with Court Name
     const result = await pool.query(`
-      SELECT b.court_id, TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date, b.slot, b.price, c.court_name
+      SELECT b.court_id, TO_CHAR(b.booking_date, 'YYYY-MM-DD') as booking_date, b.slot, b.price, c.court_name, b.created_at
       FROM bookings b
       JOIN courts c ON b.court_id = c.court_id
       WHERE b.user_id = $1
@@ -74,7 +75,8 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
 
     res.render("profile", { user: req.user, upcoming, history, points });
 
-  } catch (err) {
+  }
+  catch (err) {
     console.error(err);
     req.flash("error", "Failed to load profile");
     res.redirect("/calendar");
@@ -181,6 +183,19 @@ router.get("/api/schedules", ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json([]);
+  }
+});
+
+router.get("/api/system-date", ensureAuthenticated, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'system.timezone'");
+    const timezone = result.rows.length > 0 ? result.rows[0].setting_value : 'UTC';
+    // Get the current date in the specific system timezone
+    const dateStr = moment().tz(timezone).format('YYYY-MM-DD');
+    res.json({ date: dateStr });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ date: new Date().toISOString().split('T')[0] });
   }
 });
 

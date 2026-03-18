@@ -77,37 +77,33 @@ function showAlert(message, title = "Notification", callback = null) {
 
 // ---------- generate 7 days ----------
 
-for(let i=0; i < calendarDays; i++){
-    const date = new Date()
-    date.setDate(date.getDate()+i)
+function generateDayButtons(startDate) {
+    daysContainer.innerHTML = "";
+    days = [];
 
-    days.push(date)
+    for(let i=0; i < calendarDays; i++){
+        // Clone the start date so we don't modify the original
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
 
-    const btn = document.createElement("button")
+        days.push(date);
 
-    btn.innerText = date.toDateString()
+        const btn = document.createElement("button");
+        btn.innerText = date.toDateString();
+        btn.dataset.index = i;
 
-    btn.dataset.index = i
+        if(i === 0){
+            btn.classList.add("active-day");
+        }
 
-    if(i === 0){
-        btn.classList.add("active-day")
+        btn.onclick = () => {
+            document.querySelectorAll("#days button").forEach(b => b.classList.remove("active-day"));
+            btn.classList.add("active-day");
+            selectedDayIndex = i;
+            generateCalendar();
+        }
+        daysContainer.appendChild(btn);
     }
-
-    btn.onclick = () => {
-
-        document.querySelectorAll("#days button")
-        .forEach(b => b.classList.remove("active-day"))
-
-        btn.classList.add("active-day")
-
-        selectedDayIndex = i
-
-        generateCalendar()
-
-    }
-
-    daysContainer.appendChild(btn)
-
 }
 
 // ---------- generate calendar ----------
@@ -493,8 +489,25 @@ async function fetchSchedules(){
 
 // ---------- default load today ----------
 
-fetchBookings()
-fetchSchedules()
+async function initializeSystem() {
+    let startDate = new Date();
+    try {
+        const res = await fetch("/api/system-date");
+        if(res.ok){
+            const data = await res.json();
+            const parts = data.date.split('-');
+            // Create local date object for 00:00:00 of the system date (Month is 0-indexed)
+            startDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        }
+    } catch(e){
+        console.error("Failed to fetch system date", e);
+    }
+    generateDayButtons(startDate);
+    fetchBookings();
+    fetchSchedules();
+}
+
+initializeSystem();
 
 // ---------- PayHere Callbacks ----------
 

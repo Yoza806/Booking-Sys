@@ -110,6 +110,24 @@
         </div>
     </div>
 
+    <!-- Timezone Settings Section -->
+    <h2 class="section-title">Timezone Settings</h2>
+    <div class="admin-card">
+        <form action="/admin/settings/timezone" method="POST" class="inline-form">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="timezone">System Timezone</label>
+                <select id="timezone" name="timezone" class="form-control" required>
+                    <% const timezones = moment.tz.names(); %>
+                    <% timezones.forEach(timezone => { %>
+                        <option value="<%= timezone %>" <%= timezone === systemTimezone ? 'selected' : '' %>><%= timezone %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Timezone</button>
+        </form>
+    </div>
+
+
     <!-- System Settings Section -->
     <h2 class="section-title">System Settings</h2>
     <div class="admin-card">

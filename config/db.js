@@ -30,6 +30,9 @@ pool.connect()
       await client.query(`
         INSERT INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false') ON CONFLICT (setting_key) DO NOTHING;
       `);
+      await client.query(`
+        INSERT INTO system_settings (setting_key, setting_value) VALUES ('system.timezone', 'UTC') ON CONFLICT (setting_key) DO NOTHING;
+      `);
       client.release();
     } catch (err) {
       console.error("⚠️  Settings Initialization Error:", err);

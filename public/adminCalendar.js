@@ -14,24 +14,29 @@ let schedules = []
 
 // ---------- generate 7 days ----------
 
-for(let i=0; i < calendarDays; i++){
-    const date = new Date()
-    date.setDate(date.getDate()+i)
-    days.push(date)
+function generateDayButtons(startDate) {
+    daysContainer.innerHTML = "";
+    days = [];
 
-    const btn = document.createElement("button")
-    btn.innerText = date.toDateString()
-    btn.dataset.index = i
+    for(let i=0; i < calendarDays; i++){
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        days.push(date);
 
-    if(i === 0) btn.classList.add("active-day")
+        const btn = document.createElement("button");
+        btn.innerText = date.toDateString();
+        btn.dataset.index = i;
 
-    btn.onclick = () => {
-        document.querySelectorAll("#days button").forEach(b => b.classList.remove("active-day"))
-        btn.classList.add("active-day")
-        selectedDayIndex = i
-        generateCalendar()
+        if(i === 0) btn.classList.add("active-day");
+
+        btn.onclick = () => {
+            document.querySelectorAll("#days button").forEach(b => b.classList.remove("active-day"));
+            btn.classList.add("active-day");
+            selectedDayIndex = i;
+            generateCalendar();
+        }
+        daysContainer.appendChild(btn);
     }
-    daysContainer.appendChild(btn)
 }
 
 // ---------- generate calendar ----------
@@ -240,4 +245,21 @@ function showCustomAlert(message){
     onConfirmCallback = null;
 }
 
-fetchData();
+async function initializeSystem() {
+    let startDate = new Date();
+    try {
+        const res = await fetch("/api/admin/system-date");
+        if(res.ok){
+            const data = await res.json();
+            const parts = data.date.split('-');
+            // Create local date object for 00:00:00 of the system date
+            startDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        }
+    } catch(e){
+        console.error("Failed to fetch system date", e);
+    }
+    generateDayButtons(startDate);
+    fetchData();
+}
+
+initializeSystem();

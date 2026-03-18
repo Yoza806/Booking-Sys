@@ -1,6 +1,7 @@
 import express from "express";
 import { ensureAdmin } from "../middleware/authMiddleware.js";
 import pool from "../config/db.js";
+import moment from "moment-timezone";
 
 const router = express.Router();
 
@@ -19,6 +20,32 @@ router.post("/admin/maintenance", ensureAdmin, async (req, res) => {
   } catch (err) {
     console.error(err);
     req.flash("error", "Failed to toggle maintenance mode");
+    res.redirect("/admin");
+  }
+});
+
+router.post("/admin/settings/timezone", ensureAdmin, async (req, res) => {
+  try {
+    const { timezone } = req.body;
+
+    if (!moment.tz.names().includes(timezone)) {
+      req.flash("error", "Please enter a valid timezone.");
+      return res.redirect("/admin");
+    }
+
+    await pool.query(
+      `INSERT INTO system_settings (setting_key, setting_value) 
+       VALUES ('system.timezone', $1)
+       ON CONFLICT (setting_key) 
+       DO UPDATE SET setting_value = $1`,
+      [timezone]
+    );
+
+    req.flash("success", "Timezone setting updated successfully.");
+    res.redirect("/admin");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to update timezone setting.");
     res.redirect("/admin");
   }
 });
@@ -289,6 +316,19 @@ router.post("/admin/delete-court", ensureAdmin, async (req, res) => {
     console.error(err);
     req.flash("error", "Failed to delete court");
     res.redirect("/admin");
+  }
+});
+
+router.get("/api/admin/system-date", ensureAdmin, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'system.timezone'");
+    const timezone = result.rows.length > 0 ? result.rows[0].setting_value : 'UTC';
+    // Get the current date in the specific system timezone
+    const dateStr = moment().tz(timezone).format('YYYY-MM-DD');
+    res.json({ date: dateStr });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ date: new Date().toISOString().split('T')[0] });
   }
 });
 
