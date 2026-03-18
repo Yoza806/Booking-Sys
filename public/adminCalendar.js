@@ -102,6 +102,8 @@ function generateCalendar(){
                 if (booking.role === 'admin' && booking.price == 0) {
                     cell.classList.add("unavailable")
                     cell.innerText = "Unavailable"
+                    cell.style.backgroundColor = "#ffe6e6"
+                    cell.style.color = "#c0392b"
                     cell.onclick = () => {
                         showCustomConfirm("Make this slot available again?", () => {
                             toggleAvailability(courtId, dateStr, slot)

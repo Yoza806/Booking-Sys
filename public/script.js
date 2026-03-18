@@ -181,7 +181,9 @@ function generateCalendar(){
             } else if (booking) {
                 if (booking.price == 0) {
                     cell.classList.add("unavailable")
-                    cell.innerText = "N/A"
+                    cell.innerText = "Unavailable"
+                    cell.style.backgroundColor = "#ffe6e6"
+                    cell.style.color = "#c0392b"
                 } else if (typeof currentUserId !== 'undefined' && booking.user_id === currentUserId) {
                     cell.classList.add("booked-by-me")
                     cell.innerText = "My Slot"
