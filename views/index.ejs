@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<main>
+    <section class="hero">
+        <h1>Pro-level Courts.<br>Ready for you.</h1>
+        <p>The simplest way to book your next game. View schedules, manage bookings, and play.</p>
+        
+        <div class="btn-group">
+            <% if (user) { %>
+                <a href="/calendar" class="btn btn-primary">Book Now</a>
+            <% } else { %>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+                <a href="/login" class="btn btn-secondary">View Calendar ></a>
+            <% } %>
+        </div>
+
+        <!-- Visual Placeholder for Hero Image -->
+        <div style="">
+            <!-- <span style="color: #d2d2d7; font-size: 24px; font-weight: 500;">Immersive Court Visuals</span> -->
+             <img src="/images/sample1.jpg" alt="" style="height: 400px; background-color: #fbfbfd; border-radius: 24px; max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+        </div>
+    </section>
+
+    <section class="grid-container">
+        <div style="background: #fff; padding: 40px; border-radius: 20px; box-shadow: 2px 4px 12px rgba(0,0,0,0.05); text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 20px;">📅</div>
+            <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">Real-time Availability</h3>
+            <p style="color: #86868b; font-size: 17px;">See exactly which courts are free and book in seconds.</p>
+        </div>
+        <div style="background: #fff; padding: 40px; border-radius: 20px; box-shadow: 2px 4px 12px rgba(0,0,0,0.05); text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 20px;">⚡</div>
+            <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">Instant Confirmation</h3>
+            <p style="color: #86868b; font-size: 17px;">No waiting. Your slot is secured the moment you click.</p>
+        </div>
+        <div style="background: #fff; padding: 40px; border-radius: 20px; box-shadow: 2px 4px 12px rgba(0,0,0,0.05); text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 20px;">📱</div>
+            <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 10px;">Any Device</h3>
+            <p style="color: #86868b; font-size: 17px;">Optimized for your phone, tablet, and desktop computer.</p>
+        </div>
+    </section>
+</main>
+
+<%- include('partials/footer') %>

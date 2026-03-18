@@ -1,0 +1,185 @@
+<%- include('partials/header') %>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage courts, operating hours, and pricing configuration.</p>
+        <a href="/admin/calendar" class="btn btn-primary">📅 Open Admin Calendar</a>
+    </div>
+
+    <!-- Manage Existing Courts -->
+    <h2 class="section-title" style="margin-top: 0;">Manage Courts</h2>
+    <div class="courts-grid">
+        <% courts.forEach(court => { %>
+            <div class="admin-card court-card">
+                <div class="court-header">
+                    <h3><%= court.court_name %></h3>
+                    <form action="/admin/delete-court" method="POST" class="delete-form" data-confirm="Are you sure you want to delete this court? This cannot be undone.">
+                        <input type="hidden" name="court_id" value="<%= court.court_id %>">
+                        <button type="submit" class="btn-text-danger">Delete</button>
+                    </form>
+                </div>
+
+                <!-- Pricing Settings -->
+                <div class="settings-group">
+                    <h4>Pricing Configuration</h4>
+                    <form action="/admin/update-court-price" method="POST">
+                        <input type="hidden" name="court_id" value="<%= court.court_id %>">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Default Price</label>
+                                <input type="number" name="price" placeholder="<%= court.default_price %>" class="form-control-sm">
+                            </div>
+                            <div class="input-group">
+                                <label>Peak Price</label>
+                                <input type="number" name="peak_price" placeholder="<%= court.peak_price %>" class="form-control-sm">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Update Prices</button>
+                    </form>
+                </div>
+
+                <hr>
+
+                <!-- Schedule Settings -->
+                <div class="settings-group">
+                    <h4>Operating Hours (24h)</h4>
+                    <form action="/admin/schedule" method="POST">
+                        <input type="hidden" name="court_id" value="<%= court.court_id %>">
+                        <div class="form-row">
+                            <select name="day_of_week" class="form-control-sm" style="flex:1;">
+                                <option value="Everyday">Everyday</option>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                                <option value="0">Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <input type="number" name="open_time" placeholder="Open" class="form-control-sm" required min="0" max="23">
+                            <input type="number" name="close_time" placeholder="Close" class="form-control-sm" required min="1" max="24">
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Set Schedule</button>
+                    </form>
+                </div>
+
+                <hr>
+
+                <!-- Peak Times Settings -->
+                <div class="settings-group">
+                    <h4>Peak Hours</h4>
+                    <form action="/admin/peak-times" method="POST">
+                        <input type="hidden" name="court_id" value="<%= court.court_id %>">
+                        <div class="form-row">
+                            <select name="day_of_week" class="form-control-sm" style="flex:1;">
+                                <option value="Everyday">Everyday</option>
+                                <option value="Mon">Mon</option>
+                                <option value="Tue">Tue</option>
+                                <option value="Wed">Wed</option>
+                                <option value="Thu">Thu</option>
+                                <option value="Fri">Fri</option>
+                                <option value="Sat">Sat</option>
+                                <option value="Sun">Sun</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <input type="number" name="start_time" placeholder="Start" class="form-control-sm" required min="0" max="23">
+                            <input type="number" name="end_time" placeholder="End" class="form-control-sm" required min="1" max="24">
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Set Peak Rule</button>
+                    </form>
+                </div>
+
+            </div>
+        <% }) %>
+    </div>
+
+    <!-- Add Court Section -->
+    <div class="admin-section">
+        <h2 class="section-title">Add New Court</h2>
+        <div class="admin-card">
+            <form action="/admin/add-court" method="POST" class="inline-form">
+                <input type="text" name="court_name" placeholder="Court Name (e.g., Court 1)" class="form-control" required>
+                <input type="number" name="price" placeholder="Default Price (LKR)" class="form-control" required>
+                <input type="number" name="peak_price" placeholder="Peak Price (LKR)" class="form-control" required>
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Add Court</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- System Settings Section -->
+    <h2 class="section-title">System Settings</h2>
+    <div class="admin-card">
+        <form action="/admin/settings/calendar" method="POST" class="inline-form">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="days_to_show">Days to show in Calendar</label>
+                <input type="number" id="days_to_show" name="days_to_show" class="form-control" value="<%= calendarDaysToShow %>" min="1" max="90" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+        <p style="font-size: 13px; color: #86868b; margin-top: 10px;">
+            Set how many days (from today) are visible on the booking calendar (e.g., 7, 14, 30). Recommended between 3 and 30.
+        </p>
+    </div>
+
+    <!-- Maintenance Mode Toggle Section -->
+    <div class="admin-card" style="margin-top: 30px; border-color: <%= maintenanceMode ? '#ff3b30' : '#d2d2d7' %>;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #1d1d1f;">System Maintenance</h3>
+                <p style="font-size: 13px; color: #86868b; margin-top: 5px;">
+                    When active, only admins can access the site. Users will see a maintenance message.
+                </p>
+            </div>
+            <form action="/admin/maintenance" method="POST">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <span style="font-weight: 600; font-size: 14px; <%= maintenanceMode ? 'color: #ff3b30;' : '' %>">
+                        <%= maintenanceMode ? 'MAINTENANCE ON' : 'Normal Operation' %>
+                    </span>
+                    <input type="checkbox" name="enabled" onchange="this.form.submit()" <%= maintenanceMode ? 'checked' : '' %>>
+                </label>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Generic Alert/Confirm Modal -->
+<div id="customModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <h3 class="custom-modal-title" id="customModalTitle">Confirm Action</h3>
+        <p class="custom-modal-message" id="customModalMessage"></p>
+        <div class="custom-modal-actions">
+            <button id="customModalCancel" class="btn-modal btn-modal-cancel">Cancel</button>
+            <button id="customModalConfirm" class="btn-modal btn-modal-confirm">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const customModal = document.getElementById('customModal');
+    const modalMessage = document.getElementById('customModalMessage');
+    const confirmBtn = document.getElementById('customModalConfirm');
+    const cancelBtn = document.getElementById('customModalCancel');
+    let confirmCallback = null;
+
+    cancelBtn.onclick = () => customModal.classList.remove('show');
+    confirmBtn.onclick = () => {
+        customModal.classList.remove('show');
+        if (confirmCallback) confirmCallback();
+    };
+
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const msg = form.dataset.confirm;
+            modalMessage.innerText = msg;
+            confirmCallback = () => form.submit();
+            customModal.classList.add('show');
+        });
+    });
+</script>
+
+<%- include('partials/footer') %>

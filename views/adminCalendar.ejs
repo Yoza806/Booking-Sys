@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+
+<div class="calendar-page admin-calendar-page">
+    <div class="page-header-content">
+        <a href="/admin" class="btn btn-secondary" style="margin-bottom: 20px; display: inline-block;">&larr; Back to Dashboard</a>
+        <h1>Admin Calendar</h1>
+        <p style="color: #86868b; margin-top: 10px;">View bookings, manage slots, and handle cancellations.</p>
+    </div>
+
+    <!-- Days Navigation -->
+    <div class="days-nav-container">
+        <div class="days-scroll" id="days">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <!-- Schedule Table -->
+    <div class="schedule-container">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th class="time-col-header">Time</th>
+                    <% courts.forEach(court => { %>
+                        <th><%= court.court_name %></th>
+                    <% }) %>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                <!-- Injected by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Booking Details</h2>
+        <div id="modalDetails" style="margin: 20px 0;"></div>
+        <button id="forceDeleteBtn" class="btn btn-primary" style="background-color: #ff3b30; width: 100%;">Cancel Booking</button>
+    </div>
+</div>
+
+<!-- Generic Alert/Confirm Modal -->
+<div id="customModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <h3 class="custom-modal-title" id="customModalTitle">Alert</h3>
+        <p class="custom-modal-message" id="customModalMessage"></p>
+        <div class="custom-modal-actions">
+            <button id="customModalCancel" class="btn-modal btn-modal-cancel">Cancel</button>
+            <button id="customModalConfirm" class="btn-modal btn-modal-confirm">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const courtData = <%- JSON.stringify(courts) %>;
+    const calendarDaysToShow = <%= calendarDaysToShow %>;
+</script>
+<script src="/adminCalendar.js"></script>
+
+<%- include('partials/footer') %>

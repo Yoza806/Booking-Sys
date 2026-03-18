@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Court Booking</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="/" class="nav-brand">CourtBooking</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            &#9776;
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="/">Home</a></li>
+            <% if (user) { %>
+                <li><a href="/calendar">Book Courts</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/logout">Logout</a></li>
+            <% } else { %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            <% } %>
+        </ul>
+    </nav>
+</header>
+
+<div class="flash-container" style="max-width: 980px; margin: 20px auto; padding: 0 20px;">
+    <% if(success && success.length > 0) { %>
+        <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 12px; font-size: 14px;"><%= success %></div>
+    <% } %>
+    <% if(error && error.length > 0) { %>
+        <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 12px; font-size: 14px;"><%= error %></div>
+    <% } %>
+</div>

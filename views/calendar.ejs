@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<main class="calendar-page">
+    <div class="page-header-content">
+        <h1>Schedule</h1>
+        <p>Book your preferred court time.</p>
+    </div>
+
+    <div class="calendar-wrapper">
+        <div class="calendar-main-section">
+            <!-- Days Navigation -->
+            <div class="days-nav-container">
+                <div id="days" class="days-scroll"></div>
+            </div>
+
+            <!-- Schedule Table -->
+            <div class="schedule-container">
+                <div style="overflow-x: auto;">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th class="time-col-header">Time</th>
+                                <% courts.forEach(court => { %>
+                                    <th><%= court.court_name %></th>
+                                <% }); %>
+                            </tr>
+                        </thead>
+                        <tbody id="calendarBody">
+                            <!-- JS injects rows here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar -->
+        <aside class="booking-sidebar" id="bookingSidebar">
+            <div class="cart-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin:0">Your Bookings</h3>
+                    <button id="closeCartBtn" style="background:none; border:none; font-size: 28px; cursor: pointer; color: #86868b; line-height: 1;">&times;</button>
+                </div>
+                <div id="cartItems" class="cart-list">
+                    <div style="color: #86868b; font-style: italic;">Select a slot to start...</div>
+                </div>
+                <button id="confirmBooking" class="btn btn-primary btn-block">Confirm Booking</button>
+            </div>
+        </aside>
+
+        <!-- Floating Action Button -->
+        <button id="cartFab" class="cart-fab">
+            <span style="font-size: 24px;">🛒</span>
+            <span id="cartBadge" class="cart-badge">0</span>
+        </button>
+    </div>
+</main>
+
+<script>
+    const courtData = <%- JSON.stringify(courts) %>;
+    const peakTimeData = <%- JSON.stringify(peakTimes) %>;
+    const currentUserId = <%- user ? user.id : 'null' %>;
+    const calendarDaysToShow = <%= calendarDaysToShow %>;
+</script>
+
+<script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
+<script src="/script.js"></script>
+
+<%- include('partials/footer') %>

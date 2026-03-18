@@ -1,0 +1,11 @@
+<% if (locals.success && success.length > 0) { %>
+    <div style="background-color: #e3f9e5; color: #1f7a30; padding: 14px; margin-bottom: 22px; border-radius: 12px; font-size: 14px; text-align: center; border: 1px solid #ccebd0;">
+        <%= success %>
+    </div>
+<% } %>
+
+<% if (locals.error && error.length > 0) { %>
+    <div style="background-color: #fff2f2; color: #ff3b30; padding: 14px; margin-bottom: 22px; border-radius: 12px; font-size: 14px; text-align: center; border: 1px solid #ffcfcf;">
+        <%= error %>
+    </div>
+<% } %>
