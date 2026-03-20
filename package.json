@@ -17,7 +17,8 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "postgres": "^3.4.8"
   },
   "name": "backend-focused---booking-system",
   "version": "1.0.0",
