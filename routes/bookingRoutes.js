@@ -94,12 +94,26 @@ router.post("/book", ensureAuthenticated, async (req, res) => {
     const { bookings, order_id } = Array.isArray(req.body) ? { bookings: req.body, order_id: null } : req.body;
     const userId = req.user.id;
 
-    // SECURITY NOTE:
-    // Currently, this endpoint trusts the client that payment was successful.
-    // To fix "Declined -> Booked" issues, you should verify the 'order_id' status here.
-    // Example: Check your 'payments' table (populated by payhereNotify.js) to ensure 
-    // order_id has status_code == 2 before proceeding.
-    
+    if (!order_id) {
+      return res.status(400).json({ success: false, message: "Order ID is missing." });
+    }
+
+    // Verify Payment Status from Database (populated by webhook)
+    const paymentCheck = await client.query(
+      "SELECT status_code FROM payments WHERE order_id = $1",
+      [order_id]
+    );
+
+    if (paymentCheck.rows.length === 0) {
+      // Payment record not found (webhook didn't reach or latency)
+      return res.status(400).json({ success: false, message: "Payment verification failed. No payment record found." });
+    }
+
+    // PayHere Status Code 2 means "Success"
+    if (paymentCheck.rows[0].status_code != 2) {
+      return res.status(400).json({ success: false, message: "Payment was not successful. Booking denied." });
+    }
+
     if (!bookings || bookings.length === 0) {
       return res.status(400).json({ success: false, message: "No slots to book." });
     }

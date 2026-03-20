@@ -407,7 +407,7 @@ async function confirmBooking(){
           cancel_url: window.location.origin + "/payment-failed",
           notify_url: window.location.origin + "/api/payment/payhere-notify",
           order_id: orderId,
-          items: "Court Booking",
+          items: "Booking System",
           amount: amount,
           currency: "LKR",
           hash: data.hash,
