@@ -7,10 +7,6 @@ const { Pool } = pkg;
 
 import postgres from 'postgres'
 
-const connectionString = process.env.DATABASE_URL
-const pool = postgres(connectionString)
-
-
 const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
