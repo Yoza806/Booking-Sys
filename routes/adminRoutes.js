@@ -415,12 +415,25 @@ router.get("/admin/analytics", ensureAdmin, async (req, res) => {
       ORDER BY c.court_name, b.slot
     `, [todayStr]);
 
+    // Monthly Revenue History
+    const monthlyHistoryResult = await pool.query(`
+      SELECT 
+        TO_CHAR(booking_date, 'YYYY Month') as month_year,
+        COALESCE(SUM(price), 0) as revenue,
+        COUNT(booking_id) as bookings
+      FROM bookings
+      GROUP BY TO_CHAR(booking_date, 'YYYY Month'), date_trunc('month', booking_date)
+      ORDER BY date_trunc('month', booking_date) DESC
+      LIMIT 12
+    `);
+
     res.render("adminAnalytics", {
       stats: statsResult.rows[0],
       userStats: userStatsResult.rows[0],
       topCustomers: topCustomersResult.rows,
       courtPerf: courtPerfResult.rows,
       activeToday: activeTodayResult.rows,
+      monthlyHistory: monthlyHistoryResult.rows,
       moment
     });
   } catch (err) {
