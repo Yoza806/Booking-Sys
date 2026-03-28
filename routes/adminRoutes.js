@@ -350,4 +350,84 @@ router.get("/admin/users", ensureAdmin, async (req, res) => {
   }
 });
 
+router.get("/admin/analytics", ensureAdmin, async (req, res) => {
+  try {
+    const tzResult = await pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'system.timezone'");
+    const timezone = tzResult.rows.length > 0 ? tzResult.rows[0].setting_value : 'UTC';
+    
+    const now = moment().tz(timezone);
+    const todayStr = now.format('YYYY-MM-DD');
+    const startOfWeek = now.clone().startOf('isoWeek').format('YYYY-MM-DD');
+    const startOfLastWeek = now.clone().subtract(1, 'week').startOf('isoWeek').format('YYYY-MM-DD');
+    const endOfLastWeek = now.clone().subtract(1, 'week').endOf('isoWeek').format('YYYY-MM-DD');
+    const startOfMonth = now.clone().startOf('month').format('YYYY-MM-DD');
+    const startOfLastMonth = now.clone().subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
+    const endOfLastMonth = now.clone().subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+
+    // Revenue and Booking Stats
+    const statsResult = await pool.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE booking_date = $1) as today_bookings,
+        COALESCE(SUM(price) FILTER (WHERE booking_date = $1), 0) as today_revenue,
+        COUNT(*) FILTER (WHERE booking_date >= $2) as week_bookings,
+        COALESCE(SUM(price) FILTER (WHERE booking_date >= $2), 0) as week_revenue,
+        COUNT(*) FILTER (WHERE booking_date >= $3) as month_bookings,
+        COALESCE(SUM(price) FILTER (WHERE booking_date >= $3), 0) as month_revenue,
+        COALESCE(SUM(price) FILTER (WHERE booking_date >= $4 AND booking_date <= $5), 0) as prev_week_revenue,
+        COALESCE(SUM(price) FILTER (WHERE booking_date >= $6 AND booking_date <= $7), 0) as prev_month_revenue
+      FROM bookings
+    `, [todayStr, startOfWeek, startOfMonth, startOfLastWeek, endOfLastWeek, startOfLastMonth, endOfLastMonth]);
+
+    // User Insights
+    const userStatsResult = await pool.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM users) as total_users,
+        (SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '30 days') as new_users
+    `);
+
+    // Top 10 Customers
+    const topCustomersResult = await pool.query(`
+      SELECT u.name, u.email, COUNT(b.booking_id) as bookings, SUM(b.price) as spent
+      FROM users u
+      JOIN bookings b ON u.id = b.user_id
+      GROUP BY u.id
+      ORDER BY spent DESC
+      LIMIT 10
+    `);
+
+    // Court Performance Ranking
+    const courtPerfResult = await pool.query(`
+      SELECT c.court_name, COUNT(b.booking_id) as bookings, COALESCE(SUM(b.price), 0) as revenue
+      FROM courts c
+      LEFT JOIN bookings b ON c.court_id = b.court_id
+      WHERE c.is_active = true
+      GROUP BY c.court_id, c.court_name
+      ORDER BY revenue DESC, bookings DESC
+    `);
+
+    // Active Bookings Today
+    const activeTodayResult = await pool.query(`
+      SELECT c.court_name, b.slot, u.name as user_name, b.price
+      FROM bookings b
+      JOIN courts c ON b.court_id = c.court_id
+      JOIN users u ON b.user_id = u.id
+      WHERE b.booking_date = $1
+      ORDER BY c.court_name, b.slot
+    `, [todayStr]);
+
+    res.render("adminAnalytics", {
+      stats: statsResult.rows[0],
+      userStats: userStatsResult.rows[0],
+      topCustomers: topCustomersResult.rows,
+      courtPerf: courtPerfResult.rows,
+      activeToday: activeTodayResult.rows,
+      moment
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Failed to load analytics data.");
+    res.redirect("/admin");
+  }
+});
+
 export default router;
