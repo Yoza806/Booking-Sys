@@ -449,7 +449,7 @@ async function processBooking(orderId) {
 
   } else {
     // Use the specific message from the server, or a generic one as a fallback.
-    const errorMessage = result.message || "There was an issue processing your booking. Please try again.";
+    const errorMessage = (result.message || "There was an issue processing your booking. Please try again.");
     // On failure (e.g. slot taken), refresh the calendar when user closes the alert.
     showAlert(errorMessage, "Booking Failed", () => {
         fetchBookings();
