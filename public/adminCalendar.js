@@ -11,6 +11,7 @@ let selectedDayIndex = 0
 let days = []
 let bookings = []
 let schedules = []
+let selectedCourtId = null;
 
 // ---------- generate 7 days ----------
 
@@ -39,23 +40,84 @@ function generateDayButtons(startDate) {
     }
 }
 
+function renderCourtButtons() {
+    const isMobile = window.innerWidth <= 768;
+    let container = document.getElementById("courtsNav");
+    
+    if (!isMobile) {
+        if (container) container.style.display = "none";
+        return;
+    }
+
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "courtsNav";
+        container.className = "courts-nav-container";
+        const wrapper = document.createElement("div");
+        wrapper.className = "courts-scroll";
+        container.appendChild(wrapper);
+        const daysNav = document.querySelector(".days-nav-container");
+        if (daysNav) daysNav.parentNode.insertBefore(container, daysNav.nextSibling);
+    }
+    
+    container.style.display = "block";
+    const wrapper = container.querySelector(".courts-scroll");
+    wrapper.innerHTML = "";
+
+    if (typeof courtData !== "undefined") {
+        courtData.forEach(court => {
+            const btn = document.createElement("button");
+            btn.innerText = court.court_name;
+            if (court.court_id == selectedCourtId) btn.classList.add("active-court");
+            btn.onclick = () => {
+                selectedCourtId = court.court_id;
+                renderCourtButtons();
+                generateCalendar();
+            };
+            wrapper.appendChild(btn);
+        });
+    }
+}
+
 // ---------- generate calendar ----------
 
 function generateCalendar(){
     body.innerHTML = ""
+    const isMobile = window.innerWidth <= 768;
     const courtIds = courtData.map(c => c.court_id);
+    if (isMobile && !selectedCourtId && courtIds.length > 0) {
+        selectedCourtId = courtIds[0];
+    }
+    const displayedCourtIds = isMobile ? [selectedCourtId] : courtIds;
+
     const d = days[selectedDayIndex];
     const dayOfWeek = d.getDay();
     const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 
     for(let slot=0; slot<24; slot++){
 
+        // Update Header UI
+        if (slot === 0) {
+            const headerRow = document.querySelector(".schedule-table thead tr");
+            if (headerRow) {
+                const timeHeader = headerRow.querySelector(".time-col-header") || headerRow.cells[0];
+                headerRow.innerHTML = "";
+                headerRow.appendChild(timeHeader);
+                displayedCourtIds.forEach(id => {
+                    const court = courtData.find(c => c.court_id == id);
+                    const th = document.createElement("th");
+                    th.innerText = court ? court.court_name : `Court ${id}`;
+                    headerRow.appendChild(th);
+                });
+            }
+        }
+
         // Visibility logic (same as public script)
         let isAnyCourtOpen = false;
         if (schedules.length === 0) {
             isAnyCourtOpen = true; 
         } else {
-            for (const courtId of courtIds) {
+            for (const courtId of displayedCourtIds) {
                 const schedule = schedules.find(s => s.court_id == courtId && s.day_of_week === dayOfWeek);
                 if (!schedule || (slot >= schedule.open_slot && slot < schedule.close_slot)) {
                     isAnyCourtOpen = true;
@@ -73,7 +135,7 @@ function generateCalendar(){
         timeCell.className = "time-slot-label" // Reuses styles from styles.css
         row.appendChild(timeCell)
 
-        for(const courtId of courtIds){
+        for(const courtId of displayedCourtIds){
             const cell = document.createElement("td")
 
             // Check Schedule
@@ -257,11 +319,20 @@ async function initializeSystem() {
             // Create local date object for 00:00:00 of the system date
             startDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
         }
+        if (typeof courtData !== "undefined" && courtData.length > 0) {
+            selectedCourtId = courtData[0].court_id;
+        }
     } catch(e){
         console.error("Failed to fetch system date", e);
     }
+    renderCourtButtons();
     generateDayButtons(startDate);
     fetchData();
 }
+
+window.addEventListener('resize', () => {
+    renderCourtButtons();
+    generateCalendar();
+});
 
 initializeSystem();

@@ -376,6 +376,55 @@ footer {
     background-color: #d2d2d7;
 }
 
+/* Court Navigation for Mobile View */
+.courts-nav-container {
+    display: none;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .courts-nav-container {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+    }
+    .courts-scroll {
+        display: flex;
+        gap: 10px;
+        min-width: min-content;
+    }
+    .courts-scroll button {
+        padding: 8px 16px;
+        border: 1px solid #d2d2d7;
+        background-color: #fff;
+        color: #1d1d1f;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+    .courts-scroll button.active-court {
+        background-color: var(--btn-primary);
+        color: #fff;
+        border-color: var(--btn-primary);
+    }
+    
+    .schedule-container {
+        overflow-x: hidden;
+    }
+    .schedule-table {
+        min-width: 100%;
+        table-layout: fixed;
+    }
+    .time-col-header, .time-slot-label {
+        width: 90px !important;
+        min-width: 90px !important;
+    }
+}
+
 /* Schedule Table */
 .schedule-container {
     background: #fff;

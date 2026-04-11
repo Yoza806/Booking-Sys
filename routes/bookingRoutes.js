@@ -131,7 +131,7 @@ router.post("/book", ensureAuthenticated, async (req, res) => {
         await client.query("ROLLBACK");
         return res.status(409).json({ // 409 Conflict
           success: false,
-          message: "A selected slot was just booked by another user. Please refresh and try again.",
+          message: "A selected slot was just booked by another user. Please refresh and try again. Contact admin if you are facing any issues with payment",
         });
       }
 
