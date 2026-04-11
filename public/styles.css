@@ -416,12 +416,15 @@ footer {
         overflow-x: hidden;
     }
     .schedule-table {
-        min-width: 100%;
+        min-width: 0 !important;
+        width: 100% !important;
         table-layout: fixed;
     }
     .time-col-header, .time-slot-label {
-        width: 90px !important;
-        min-width: 90px !important;
+        width: 85px !important;
+        min-width: 85px !important;
+        position: static !important;
+        left: auto !important;
     }
 }
 
