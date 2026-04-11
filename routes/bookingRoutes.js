@@ -159,9 +159,9 @@ router.post("/book", ensureAuthenticated, async (req, res) => {
       const price = peakRes.rows.length > 0 ? court.peak_price : court.default_price;
 
       await client.query(
-        `INSERT INTO bookings (user_id, court_id, booking_date, slot, price)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [userId, item.court, item.date, item.slot, price]
+        `INSERT INTO bookings (user_id, court_id, booking_date, slot, price, order_id)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [userId, item.court, item.date, item.slot, price, order_id]
       );
     }
 

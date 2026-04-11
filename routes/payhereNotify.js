@@ -39,11 +39,11 @@ router.post("/payhere-notify", async (req, res) => {
 
         // Upsert the payment record
         await pool.query(
-            `INSERT INTO payments (order_id, payment_id, amount, currency, status_code)
-             VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO payments (order_id, payment_id, amount, currency, status_code, md5sig)
+             VALUES ($1, $2, $3, $4, $5, $6)
              ON CONFLICT (order_id) 
-             DO UPDATE SET status_code = $5, payment_id = $2`,
-            [order_id, payment_id, payhere_amount, payhere_currency, status_code]
+             DO UPDATE SET status_code = $5, payment_id = $2, md5sig = $6`,
+            [order_id, payment_id, payhere_amount, payhere_currency, status_code, md5sig]
         );
 
         res.status(200).send("OK");
