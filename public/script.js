@@ -415,6 +415,10 @@ async function confirmBooking(){
     return
   }
 
+  // Hide sidebar and FAB immediately to prevent double-clicks during payment processing
+  if (bookingSidebar) bookingSidebar.style.display = "none";
+  if (cartFab) cartFab.style.display = "none";
+
   // Calculate total amount dynamically
   let total = 0;
   cart.forEach(item => {
@@ -515,6 +519,7 @@ async function processBooking(orderId) {
     const errorMessage = (result.message || "There was an issue processing your booking. Please try again.");
     // On failure (e.g. slot taken), refresh the calendar when user closes the alert.
     showAlert(errorMessage, "Booking Failed", () => {
+        updateCart();
         fetchBookings();
     });
   }
@@ -591,8 +596,10 @@ payhere.onCompleted = function(orderId) {
 
 payhere.onDismissed = function() {
     showAlert("Payment was cancelled.", "Cancelled");
+    updateCart(); // Restore FAB so the user can access their cart again
 };
 
 payhere.onError = function(error) {
     showAlert("An error occurred during payment processing.", "Payment Error");
+    updateCart(); // Restore FAB so the user can access their cart again
 };
